@@ -2,6 +2,7 @@ import { useState } from "react";
 import styled from "styled-components";
 import Episode from "../Episode";
 import Season from "../Season";
+import { useImmer } from "use-immer";
 
 const Title = styled.h1`
   text-decoration: underline;
@@ -19,11 +20,39 @@ const StyledShow = styled.div`
 `;
 
 export default function Show({ initialSeasons = [] }) {
-  const [seasons, setSeasons] = useState(initialSeasons);
+  const [seasons, updateSeason] = useImmer(initialSeasons);
 
   function handleToggleHasSeen(seasonNumber, episodeNumber) {
-    setSeasons((prevSeasons) => {
-      const season = prevSeasons.find(({ number }) => number === seasonNumber);
+    updateSeason((draft) => {
+      const season = draft.find((season) => season.number === seasonNumber);
+
+      const episode = season.episodes.find(
+        (episode) => episode.number === episodeNumber
+      );
+
+      episode.hasSeen = !episode.hasSeen;
+    });
+    /* setSeasons((prevSeasons) => {
+      return prevSeasons.map((season) => {
+        if (season.number !== seasonNumber) {
+          return season;
+        }
+
+        return {
+          ...season,
+          episodes: season.episodes.map((episode) => {
+            if (episode.number !== episodeNumber) {
+              return episode;
+            }
+            return {
+              ...episode,
+              hasSeen: !episode.hasSeen,
+            };
+          }),
+        };
+      }); */
+
+    /* const season = prevSeasons.find(({ number }) => number === seasonNumber);
 
       const episode = season.episodes.find(
         ({ number }) => number === episodeNumber
@@ -33,8 +62,8 @@ export default function Show({ initialSeasons = [] }) {
 
       console.log(prevSeasons);
 
-      return prevSeasons;
-    });
+      return prevSeasons; 
+    });*/
   }
 
   return (
